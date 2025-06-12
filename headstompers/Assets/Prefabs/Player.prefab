@@ -51,7 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3205143328
+  GlobalObjectIdHash: 1964636473
   InScenePlacedSourceGlobalObjectIdHash: 3205143328
   DeferredDespawnTick: 0
   Ownership: 1
@@ -252,7 +252,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxMoveSpeed: 5
   feet: {fileID: 7468069712938415815}
-  detectionLength: 0.05
+  detectionLength: 0.01
   Ground:
     serializedVersion: 2
     m_Bits: 64
@@ -261,6 +261,8 @@ MonoBehaviour:
   maxHangTime: 0
   earlyReleaseMultiplier: 0.3
   gravityMultiplier: 0.75
+  jumpBufferTime: 0.1
+  coyoteTime: 0.15
 --- !u!114 &2050120888753776141
 MonoBehaviour:
   m_ObjectHideFlags: 0

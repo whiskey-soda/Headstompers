@@ -31,7 +31,9 @@ public class Movement : MonoBehaviour
     [SerializeField] private float maxHangTime;
     [SerializeField] private float earlyReleaseMultiplier;
     [SerializeField] private float gravityMultiplier;
-
+    [SerializeField] private float jumpBufferTime;
+    [SerializeField] private float coyoteTime;
+    
     private bool jumpHeld;
     private bool jumpPressed;
     private float gravity;
@@ -42,7 +44,8 @@ public class Movement : MonoBehaviour
     private bool accelerationCalculated;
     private bool maxGravCalculated;
     private float currentHangTime;
-
+    private float jumpBufferTimer;
+    private float coyoteTimer = 0f;
 
     private void Awake()
     {
@@ -50,8 +53,6 @@ public class Movement : MonoBehaviour
     }
 
     #region Jump
-
-
     void Jump()
     {
         if (CheckApplyUpwardJump())
@@ -119,15 +120,15 @@ public class Movement : MonoBehaviour
 
     private bool CheckApplyUpwardJump()
     {
-        
+
         //ends the jump when the  upwards velocity reaches zero
         if (isJumping && !isGrounded && jumpVelocity > 0f)
         {
             return true;
         }
         else { return false; }
-        
-        
+
+
     }
 
     private void ApplyUpwardJump()
@@ -150,7 +151,7 @@ public class Movement : MonoBehaviour
             return true;
         }
         else { return false; }
-        
+
     }
 
     private void HandleHangTime()
@@ -171,12 +172,12 @@ public class Movement : MonoBehaviour
     {
         //Checks to see if we continue to apply downward velocity
         //Will end if the player becomes grounded
-        if(isJumping && !isGrounded && reachedPeak && jumpVelocity > maxGravity)
+        if (isJumping && !isGrounded && reachedPeak && jumpVelocity > maxGravity)
         {
             return true;
         }
         else { return false; };
-        
+
     }
 
     private void ApplyDownwardGravity()
@@ -195,16 +196,16 @@ public class Movement : MonoBehaviour
     private bool CheckForceEndJump()
     {
         //checks if the player is on the ground after jumping and ends it
-        if(isGrounded && (!isJumping || !initialJumpStarted))
+        if (isGrounded && (!isJumping || !initialJumpStarted))
         {
             return true;
         }
         else { return false; };
-       
+
     }
 
 
-    private void EarlyRelease() 
+    private void EarlyRelease()
     {
         jumpVelocity *= earlyReleaseMultiplier; // fall faster when released early
         reachedPeak = true;
@@ -238,20 +239,31 @@ public class Movement : MonoBehaviour
 
     public void CheckGrounded()
     {
-        
+
         Vector2 castOrigin = new Vector2(feet.bounds.center.x, feet.bounds.min.y); //Defines the center and middle of the collider
         Vector2 castSize = new Vector2(feet.bounds.size.x, detectionLength); //Defines the width as the collider and height customizable
 
 
         LayerMask mask = Ground; //Set so that we can add other layers
-        RaycastHit2D hit = Physics2D.BoxCast(castOrigin, castSize, 0f, Vector2.down, detectionLength, mask); 
+        RaycastHit2D hit = Physics2D.BoxCast(castOrigin, castSize, 0f, Vector2.down, detectionLength, mask);
 
-        if (hit.collider != null) 
-        { 
+        if (hit.collider != null)
+        {
             isGrounded = true;
-            //Debug.Log("Grounded");
         }
-        else{ isGrounded = false; }
+        else
+        {
+            isGrounded = false;
+        }
+
+        if (isGrounded)
+        {
+            coyoteTimer = coyoteTime; // reset on ground
+        }
+        else
+        {
+            coyoteTimer -= Time.deltaTime;
+        }
     }
 
     #endregion
@@ -275,6 +287,7 @@ public class Movement : MonoBehaviour
             // Player just released the jump button
             jumpPressed = false;
 
+            //the player hasn't reached the peak meaning they let go a little early
             if (isJumping && !reachedPeak)
             {
                 EarlyRelease();
@@ -284,17 +297,28 @@ public class Movement : MonoBehaviour
 
         jumpHeld = inputPressed;
 
+
+        //Main jump input
         if (inputPressed && !isJumping && isGrounded)
         {
             jumpPressed = true;
             Debug.Log("Jump pressed");
-            
+
+        }
+
+        //Buffer for if the player inputs before the player actually lands smoother feel
+        if (inputPressed)
+        {
+            jumpBufferTimer = jumpBufferTime;
         }
     }
     public void CheckJump()
     {
-        if (jumpPressed && !isJumping && isGrounded)
+        //The jump is activate if the player is currently pressing the button or pressed it early but within the buffer window
+        // Coyote time is also taken into account to allow the player to jump even if they are already falling
+        if ((jumpBufferTimer > 0f||jumpPressed) && !isJumping && coyoteTimer > 0f)
         {
+            jumpBufferTimer = 0f;
             jumpVelocity = 0;
             InitiateJump();
 
@@ -307,6 +331,12 @@ public class Movement : MonoBehaviour
     {
         // apply movement value
         rb2d.linearVelocityX = movementValue;
+
+        //Jump buffer so that the player can input jump early
+        if (jumpBufferTimer > 0)
+        {
+            jumpBufferTimer -= Time.deltaTime;
+        }
 
         //Apply jump and gravity aand jump
         Jump();
