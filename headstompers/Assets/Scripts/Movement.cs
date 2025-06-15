@@ -57,6 +57,8 @@ public class Movement : MonoBehaviour
             }
         }
 
+        // TODO: set max movement speed and accel based on strength of input
+
         // cap movement speed
         if (Mathf.Abs(movementValue) > maxMoveSpeed)
         {
