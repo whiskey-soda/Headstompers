@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Ricardo Testing.unity
     guid: ced82f188c7b4194e903dac1f52bde47
+  - enabled: 1
+    path: Assets/Scenes/dev_AdvMovement.unity
+    guid: 7a5617ce82c5f3e4d8e7a98253188ba0
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
