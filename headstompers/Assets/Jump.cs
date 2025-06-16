@@ -12,7 +12,8 @@ public class Jump : MonoBehaviour
     [SerializeField] private float initialVelocity;
     [SerializeField] private float maxHangTime;
     [SerializeField] private float earlyReleaseMultiplier;
-    [SerializeField] private float gravityMultiplier;
+    [SerializeField] private float gravityCap;
+    [SerializeField] private float gravityScale;
     [SerializeField] private float jumpBufferTime;
     [SerializeField] public float coyoteTime;
 
@@ -195,7 +196,7 @@ public class Jump : MonoBehaviour
         }
 
         //applys downward velocity until max is reached
-        jumpVelocity += gravity * Time.fixedDeltaTime;
+        jumpVelocity += gravity* gravityScale * Time.fixedDeltaTime;
         initialJumpStarted = false;
     }
 
@@ -228,7 +229,7 @@ public class Jump : MonoBehaviour
     private void CalculateTerminalVelocity()
     {
         //Calculates the gravity based on the height and the gravity mult
-        maxGravity = -Mathf.Sqrt(gravityMultiplier * Mathf.Abs(gravity) * jumpHeight);
+        maxGravity = -Mathf.Sqrt(gravityCap * Mathf.Abs(gravity) * jumpHeight);
         maxGravCalculated = true;
     }
 
