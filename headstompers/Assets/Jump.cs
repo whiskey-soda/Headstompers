@@ -260,6 +260,11 @@ public class Jump : MonoBehaviour
         rb2d.linearVelocity = velocity;
     }
 
+    public void StopJump()
+    {
+        jumpVelocity = 0;
+    }
+
     #endregion
 
     public void OnJump(InputValue value)
