@@ -18,6 +18,7 @@ public class Movement : MonoBehaviour
 
     float xVelocity = 0;
     int moveDirection = 0;
+    float moveInputStrength = 1;
 
     bool isSprinting = false;
 
@@ -36,6 +37,8 @@ public class Movement : MonoBehaviour
 
         if (inputFloat == 0) { moveDirection = 0; }
         else { moveDirection = (int)Mathf.Sign(inputFloat); }
+
+        moveInputStrength = Mathf.Abs(inputFloat);
     }
 
     public void OnSprint(InputValue value)
@@ -55,6 +58,7 @@ public class Movement : MonoBehaviour
         float _maxSpeed = maxMoveSpeed;
         float _acceleration = acceleration;
         if (isSprinting) { _maxSpeed = sprint_maxMoveSpeed; _acceleration = sprint_acceleration; }
+        _maxSpeed *= moveInputStrength;
 
 
         // if player is currently above max speed, they can only move AGAINST their current move direction
