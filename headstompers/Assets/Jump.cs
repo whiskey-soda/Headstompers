@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +11,7 @@ public class Jump : MonoBehaviour
     [Header("Jump Edit")]
     [SerializeField] private float jumpHeight;
     [SerializeField] private float initialVelocity;
+    [SerializeField] private float initialHeadJumpVelocity;
     [SerializeField] private float maxHangTime;
     [SerializeField] private float earlyReleaseMultiplier;
     [SerializeField] private float gravityCap;
@@ -39,8 +41,13 @@ public class Jump : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isJumping)
+        if (!isJumping && !groundedScript.onHead)
         {
+            CheckJump();
+        }
+        else if(isJumping && groundedScript.onHead)
+        {
+            EndJump();
             CheckJump();
         }
     }
@@ -106,6 +113,18 @@ public class Jump : MonoBehaviour
         isJumping = true;
         initialJumpStarted = true;
         jumpVelocity = initialVelocity;
+        accelerationCalculated = false;
+        maxGravCalculated = false;
+        reachedPeak = false;
+        currentHangTime = 0f;
+    }
+
+    private void InitiateHeadJump(float headVelo)
+    {
+        //Sets all the jump variables to get it ready for a jump
+        isJumping = true;
+        initialJumpStarted = true;
+        jumpVelocity = headVelo;
         accelerationCalculated = false;
         maxGravCalculated = false;
         reachedPeak = false;
@@ -241,6 +260,11 @@ public class Jump : MonoBehaviour
         rb2d.linearVelocity = velocity;
     }
 
+    public void StopJump()
+    {
+        jumpVelocity = 0;
+    }
+
     #endregion
 
     public void OnJump(InputValue value)
@@ -282,12 +306,30 @@ public class Jump : MonoBehaviour
     {
         //The jump is activate if the player is currently pressing the button or pressed it early but within the buffer window
         // Coyote time is also taken into account to allow the player to jump even if they are already falling
-        if ((jumpBufferTimer > 0f || jumpPressed) && !isJumping && coyoteTimer > 0f)
+        if ((jumpBufferTimer > 0f || jumpPressed) && !isJumping && coyoteTimer > 0f && groundedScript.isGrounded)
         {
             jumpBufferTimer = 0f;
             jumpVelocity = 0;
             InitiateJump();
 
+        }
+        else if(!groundedScript.isGrounded && groundedScript.onHead)
+        {
+            
+            if((jumpBufferTimer > 0f || jumpPressed))
+            {
+                Debug.Log("Jump Buffer Timer Time: " + jumpBufferTimer);
+                jumpBufferTimer = 0f;
+                jumpVelocity = 0;
+                InitiateHeadJump(initialHeadJumpVelocity);
+            }
+            else
+            {
+                Debug.Log("Jump On Head no Press");
+                jumpBufferTimer = 0f;
+                jumpVelocity = 0;
+                InitiateHeadJump(initialHeadJumpVelocity/1.5f);
+            }
         }
     }
 
