@@ -253,8 +253,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxMoveSpeed: 5
-  acceleration: 60
-  deceleration: 15
+  acceleration: 15
+  sprint_maxMoveSpeed: 10
+  sprint_acceleration: 20
+  deceleration: 10
   midairAccelMult: 0.5
 --- !u!114 &2050120888753776141
 MonoBehaviour:
