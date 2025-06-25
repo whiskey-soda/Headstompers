@@ -337,6 +337,9 @@ MonoBehaviour:
   sprint_acceleration: 20
   deceleration: 10
   midairAccelMult: 0.5
+  slideSpeedMult: 2
+  slideDeceleration: 15
+  slideMinSeconds: 0.25
 --- !u!114 &2050120888753776141
 MonoBehaviour:
   m_ObjectHideFlags: 0

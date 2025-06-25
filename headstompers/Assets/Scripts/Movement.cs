@@ -22,6 +22,17 @@ public class Movement : MonoBehaviour
 
     bool isSprinting = false;
 
+    [Space]
+    bool isSliding = false;
+    bool slideInput = false;
+    float slideDuration = 0;
+
+    [SerializeField] float slideSpeedMult = 1.2f;
+    [SerializeField] float slideDeceleration = 3;
+    [Tooltip("time before a player can stop sliding")]
+    [SerializeField] float slideMinSeconds = .25f;
+
+
     Rigidbody2D rb2d;
     Grounded groundedScript;
 
@@ -50,53 +61,100 @@ public class Movement : MonoBehaviour
         else { isSprinting = true; }
     }
 
+    public void OnSlide(InputValue value)
+    {
+        if (value.Get<float>() == 0)
+        {
+            slideInput = false;
+        }
+        else { slideInput = true; }
+    }
+
     private void FixedUpdate()
     {
-        float accelMult = 1;
-        accelMult = CalculateAccelerationMultiplier();
-
-        float _maxSpeed = maxMoveSpeed;
-        float _acceleration = acceleration;
-        if (isSprinting) { _maxSpeed = sprint_maxMoveSpeed; _acceleration = sprint_acceleration; }
-        _maxSpeed *= moveInputStrength;
-
-
-        // if player is currently above max speed, they can only move AGAINST their current move direction
-        // if they are not doing that, they will decelerate
-        if (Mathf.Abs(xVelocity) > _maxSpeed)
+        // SLIDE LOGIC
+        // ** logic for ending a slide **
+        if (isSliding)
         {
-            // player is moving against current velocity
-            if (moveDirection != Mathf.Sign(xVelocity))
-            {
-                // apply movement
-                ApplyMovement(accelMult, _maxSpeed, _acceleration);
-            }
+            slideDuration += Time.deltaTime;
+            // apply sliding deceleration
+            xVelocity = Mathf.Sign(xVelocity) * (Mathf.Abs(xVelocity) - slideDeceleration * Time.deltaTime);
 
-            // player is moving with current velocity
-            else if (moveDirection != 0)
-            {
-                // decelerate to max speed
-                // this is so the player will not go below max speed if they keep trying to move in the current direction
-                Decelerate(accelMult);
-                if (Mathf.Abs(xVelocity) < _maxSpeed) { xVelocity = _maxSpeed * Mathf.Sign(xVelocity); }
-            }
+            // slide stops if player leaves the ground
+            if (!groundedScript.isGrounded) { isSliding = false; }
 
-            // no movement
-            else if (moveDirection == 0) { Decelerate(accelMult); }
+            // minimum duration passed, slide can be canceled
+            if (slideDuration > slideMinSeconds)
+            {
+                // player ends slide by releasing input OR
+                // slide ends automatically because player is moving slower than max walking speed
+                if (!slideInput || Mathf.Abs(xVelocity) < maxMoveSpeed)
+                {
+                    isSliding = false;
+                }
+            }
         }
-        // player not above max speed, apply movement normally
-        else
+        // ** logic for starting a slide **
+        // check if conditions are appropriate to begin a slide
+        // conditions: slide input is pressed, player is not already sliding, is on the ground, and speed > max walking speed
+        else if (slideInput && groundedScript.isGrounded && Mathf.Abs(xVelocity) > maxMoveSpeed)
         {
-            ApplyMovement(accelMult, _maxSpeed, _acceleration);
+            xVelocity *= slideSpeedMult;
+            isSliding = true;
+            slideDuration = 0;
+        }
 
-            // cap movement speed
+
+        // MOVEMENT LOGIC
+        if (!isSliding)
+        {
+            float accelMult = 1;
+            accelMult = CalculateAccelerationMultiplier();
+
+            // change speed limits if sprinting
+            float _maxSpeed = maxMoveSpeed;
+            float _acceleration = acceleration;
+            if (isSprinting) { _maxSpeed = sprint_maxMoveSpeed; _acceleration = sprint_acceleration; }
+
+            // input strength influences the max speed
+            _maxSpeed *= moveInputStrength;
+
+
+            // if player is currently above max speed, they can only move AGAINST their current move direction
+            // if they are not doing that, they will decelerate
             if (Mathf.Abs(xVelocity) > _maxSpeed)
             {
-                xVelocity = _maxSpeed * Mathf.Sign(xVelocity);
+                // player is moving against current velocity
+                if (moveDirection != Mathf.Sign(xVelocity))
+                {
+                    // apply movement
+                    ApplyMovement(accelMult, _maxSpeed, _acceleration);
+                }
+
+                // player is moving with current velocity
+                else if (moveDirection != 0)
+                {
+                    // decelerate to max speed
+                    // this is so the player will not go below max speed if they keep trying to move in the current direction
+                    Decelerate(accelMult);
+                    if (Mathf.Abs(xVelocity) < _maxSpeed) { xVelocity = _maxSpeed * Mathf.Sign(xVelocity); }
+                }
+
+                // no movement
+                else if (moveDirection == 0) { Decelerate(accelMult); }
+            }
+            // player not above max speed, apply movement normally
+            else
+            {
+                ApplyMovement(accelMult, _maxSpeed, _acceleration);
+
+                // cap movement speed
+                if (Mathf.Abs(xVelocity) > _maxSpeed)
+                {
+                    xVelocity = _maxSpeed * Mathf.Sign(xVelocity);
+                }
             }
         }
-
-        // TODO: set max movement speed and accel based on strength of input
 
         // apply movement value
         rb2d.linearVelocityX = xVelocity;
