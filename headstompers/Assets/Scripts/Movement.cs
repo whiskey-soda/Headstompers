@@ -72,6 +72,9 @@ public class Movement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // fetch x velocity for use in later movement logic
+        xVelocity = rb2d.linearVelocityX;
+
         // SLIDE LOGIC
         // ** logic for ending a slide **
         if (isSliding)
