@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Jump : MonoBehaviour
 {
+    WallJump wallJumpScript;
     Grounded groundedScript;
     Rigidbody2D rb2d;
     [SerializeField] public bool isJumping { get; private set; }
@@ -19,6 +20,7 @@ public class Jump : MonoBehaviour
     [SerializeField] private float jumpBufferTime;
     [SerializeField] public float coyoteTime;
 
+    [Header("Jump Debug")]
     private bool jumpHeld;
     private bool jumpPressed;
     private float gravity;
@@ -31,42 +33,76 @@ public class Jump : MonoBehaviour
     private float currentHangTime;
     private float jumpBufferTimer;
     public  float coyoteTimer;
+
+    [SerializeField]public bool startedHoldingWall;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb2d = GetComponent<Rigidbody2D>();
         groundedScript = GetComponent<Grounded>();
+        wallJumpScript = GetComponent<WallJump>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!isJumping && !groundedScript.onHead)
+        if (!wallJumpScript.CheckHoldingWall())
         {
-            CheckJump();
+            if (!isJumping && !groundedScript.onHead)
+            {
+                CheckJump();
+            }
+            else if (isJumping && groundedScript.onHead)
+            {
+                EndJump();
+                CheckJump();
+            }
+            startedHoldingWall = false;
         }
-        else if(isJumping && groundedScript.onHead)
+        else
         {
-            EndJump();
-            CheckJump();
+            if (!startedHoldingWall)
+            {
+                EndJump();
+                startedHoldingWall = true;
+            }
         }
+
     }
 
     private void FixedUpdate()
     {
-        
 
-        //Jump buffer so that the player can input jump early
-        if (jumpBufferTimer > 0)
+        if (!wallJumpScript.CheckHoldingWall() )
         {
-            jumpBufferTimer -= Time.deltaTime;
-        }
 
-        //Apply jump and gravity aand jump
-        Jumps();
+            //Jump buffer so that the player can input jump early
+            if (jumpBufferTimer > 0)
+            {
+                jumpBufferTimer -= Time.deltaTime;
+            }
+
+            //Apply jump and gravity aand jump
+            Jumps();
+        }
+        
     }
 
     #region Jump
+
+    public void ApplyExternalJump(float force)
+    {
+        isJumping = true;
+        initialJumpStarted = true;
+
+        accelerationCalculated = false;
+        maxGravCalculated = false;
+        reachedPeak = false;
+        currentHangTime = 0f;
+
+        jumpVelocity = force;
+    }
+
     void Jumps()
     {
         if (CheckApplyUpwardJump())
