@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class Jump : MonoBehaviour
 {
     WallJump wallJumpScript;
+    GroundPound groundPoundScript;
     Grounded groundedScript;
     Rigidbody2D rb2d;
     [SerializeField] public bool isJumping { get; private set; }
@@ -35,18 +36,20 @@ public class Jump : MonoBehaviour
     public  float coyoteTimer;
 
     [SerializeField]public bool startedHoldingWall;
+    public bool startedGroundPounding;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb2d = GetComponent<Rigidbody2D>();
         groundedScript = GetComponent<Grounded>();
         wallJumpScript = GetComponent<WallJump>();
+        groundPoundScript = GetComponent<GroundPound>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!wallJumpScript.CheckHoldingWall())
+        if (!wallJumpScript.CheckHoldingWall() && !groundPoundScript.CheckGroundPounding())
         {
             if (!isJumping && !groundedScript.onHead)
             {
@@ -58,13 +61,22 @@ public class Jump : MonoBehaviour
                 CheckJump();
             }
             startedHoldingWall = false;
+            startedGroundPounding = false;
         }
-        else
+        else if(wallJumpScript.CheckHoldingWall() && !groundPoundScript.CheckGroundPounding())
         {
             if (!startedHoldingWall)
             {
                 EndJump();
                 startedHoldingWall = true;
+            }
+        }
+        else if(!wallJumpScript.CheckHoldingWall() && groundPoundScript.CheckGroundPounding())
+        {
+            if(!startedGroundPounding)
+            {
+                EndJump();
+                startedGroundPounding = true;
             }
         }
 
@@ -73,7 +85,7 @@ public class Jump : MonoBehaviour
     private void FixedUpdate()
     {
 
-        if (!wallJumpScript.CheckHoldingWall() )
+        if (!wallJumpScript.CheckHoldingWall() && !groundPoundScript.CheckGroundPounding())
         {
 
             //Jump buffer so that the player can input jump early

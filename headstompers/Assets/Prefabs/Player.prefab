@@ -222,6 +222,7 @@ GameObject:
   - component: {fileID: 146595296278014302}
   - component: {fileID: -309564123273060437}
   - component: {fileID: 4819067830261161802}
+  - component: {fileID: 2413552002404466812}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -597,6 +598,7 @@ MonoBehaviour:
   coyoteTime: 0.1
   coyoteTimer: 0
   startedHoldingWall: 0
+  startedGroundPounding: 0
 --- !u!114 &6415248168388920216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -671,6 +673,23 @@ MonoBehaviour:
   wallJumpReload: 0.1
   wallJumpForceX: 10
   wallJumpForceY: 20
+--- !u!114 &2413552002404466812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1937573755201859420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f62acc66295744544b2a6077a13831ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundPounding: 0
+  breakGroundPound: 0
+  chargeTime: 0.2
+  currentChargeTimer: 0
+  groundPoundSpeed: -30
 --- !u!1 &1993774032167759838
 GameObject:
   m_ObjectHideFlags: 0
