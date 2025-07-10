@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/testlevel.unity
     guid: 71c6360c7f0d0f54eb54d472b2ac07dd
+  - enabled: 1
+    path: Assets/Scenes/collectible spawning.unity
+    guid: ad56431582f2cab499fd14cbb9b0cd36
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
