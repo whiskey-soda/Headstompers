@@ -2924,7 +2924,7 @@ GameObject:
   - component: {fileID: 1409953281}
   - component: {fileID: 1409953280}
   m_Layer: 0
-  m_Name: collectible spawner
+  m_Name: Collectible Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
