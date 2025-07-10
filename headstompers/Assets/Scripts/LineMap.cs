@@ -8,7 +8,7 @@ public class LineMap : MonoBehaviour
 {
     [SerializeField] GameObject iconPrefab;
     [Space]
-    [SerializeField] RectTransform lineImageRect;
+    [SerializeField] RectTransform lineImageRect; // icons are created as children of the line image for easier positioning
     [Space]
     [SerializeField] Transform leftMapEdge;
     [SerializeField] Transform rightMapEdge;
