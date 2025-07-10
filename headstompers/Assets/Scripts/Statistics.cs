@@ -3,7 +3,8 @@ using Unity.Cinemachine;
 using Unity.Netcode;
 public class Statistics : NetworkBehaviour
 {
-    private int collectibles;
+    public int score { get; private set; } = 0;
+
     [SerializeField] private CinemachineCamera mainCam;
     private void Start()
     {
@@ -22,6 +23,13 @@ public class Statistics : NetworkBehaviour
 
     public void LoseCollectible()
     {
-        collectibles -= 1;
+        ChangeScoreRpc(-1);
     }
+
+    [Rpc(SendTo.Everyone)]
+    public void ChangeScoreRpc(int change)
+    {
+        score += change;
+    }
+
 }

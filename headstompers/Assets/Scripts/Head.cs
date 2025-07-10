@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class Head : MonoBehaviour
@@ -19,7 +20,9 @@ public class Head : MonoBehaviour
             {
                 //Stop jump and lose a collectible if jumped on
                 jumpScript.StopJump();
-                statistics.LoseCollectible();
+
+                // if local player is the one doing damage, lose collectible (client authoritative)
+                if (collision.GetComponent<NetworkObject>().IsLocalPlayer) { statistics.LoseCollectible(); }
 
             }
             else if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
