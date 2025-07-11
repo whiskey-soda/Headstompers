@@ -18,6 +18,8 @@ public class CollectDetection : MonoBehaviour
         {
             collectible.Despawn();
             statisticsScript.ChangeScoreRpc(+1);
+
+            if (CollectibleSpawner.Instance != null) {CollectibleSpawner.Instance.SpawnCollectibleAtRandomPosition();}
         }
     }
 }

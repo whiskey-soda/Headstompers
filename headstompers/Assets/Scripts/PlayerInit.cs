@@ -10,7 +10,7 @@ public class PlayerInit : MonoBehaviour
     {
         if (LineMap.Instance != null)
         {
-            LineMap.Instance.AddPlayer(transform);
+            LineMap.Instance.AddTrackedObject(transform);
         }
     }
 }

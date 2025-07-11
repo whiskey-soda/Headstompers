@@ -13,7 +13,7 @@ public class LineMap : MonoBehaviour
     [SerializeField] Transform leftMapEdge;
     [SerializeField] Transform rightMapEdge;
 
-    List<Transform> playerTransforms = new List<Transform>();
+    List<Transform> trackedTransforms = new List<Transform>();
     List<RectTransform> iconRects = new List<RectTransform>();
 
     public static LineMap Instance;
@@ -25,39 +25,78 @@ public class LineMap : MonoBehaviour
     }
 
     /// <summary>
-    /// adds a players transform to a list for position tracking, and creates a new icon for that player
+    /// adds an object's transform to a list for position tracking, and creates a new icon for that object
     /// </summary>
-    /// <param name="newPlayerTransform"></param>
-    public void AddPlayer(Transform newPlayerTransform)
+    /// <param name="objectTransform"></param>
+    public void AddTrackedObject(Transform objectTransform)
     {
-        if (playerTransforms.Contains(newPlayerTransform)) { return; }
+        if (trackedTransforms.Contains(objectTransform)) { return; }
 
-        playerTransforms.Add(newPlayerTransform);
+        trackedTransforms.Add(objectTransform);
 
         // instantiates a new icon as a child of the line image, so local scale can be used for positioning
         GameObject newIcon = Instantiate(iconPrefab, lineImageRect);
         iconRects.Add(newIcon.GetComponent<RectTransform>());
 
-        newIcon.GetComponent<TextMeshProUGUI>().text = playerTransforms.Count.ToString();
+        newIcon.GetComponent<TextMeshProUGUI>().text = trackedTransforms.Count.ToString();
     }
 
     private void Update()
     {
+        RemoveNullTransforms();
 
-        // sets the positions of all icons according to the players' positions
-        for (int i = 0; i < playerTransforms.Count; i++)
+        // sets the positions of all icons according to the tracked objects' positions
+        for (int i = 0; i < trackedTransforms.Count; i++)
         {
-            Transform playerTransform = playerTransforms[i];
+            Transform playerTransform = trackedTransforms[i];
             RectTransform iconRect = iconRects[i];
 
-            // calculates the position of the player on the map from 0 to 1, 0 being the left edge and 1 being the right edge
+            // calculates the position of the object on the map from 0 to 1, 0 being the left edge and 1 being the right edge
             float mapProgress = (playerTransform.position.x - leftMapEdge.position.x) / (rightMapEdge.position.x - leftMapEdge.position.x);
             Debug.Log(mapProgress);
-            
-            // use mapProgress float to set the position of the player's icon along the line
-            iconRect.localPosition = new Vector3(   Mathf.Lerp(lineImageRect.offsetMin.x, lineImageRect.offsetMax.x, mapProgress),
+
+            // use mapProgress float to set the position of the object's icon along the line
+            iconRect.localPosition = new Vector3(Mathf.Lerp(lineImageRect.offsetMin.x, lineImageRect.offsetMax.x, mapProgress),
                                                     iconRect.localPosition.y);
         }
     }
 
+    /// <summary>
+    /// iterates over the tracked objects list, removing one null at a time (to avoid errors due to removed elements).
+    /// if a null is removed, iterates over the list again until no nulls are found
+    /// </summary>
+    private bool RemoveNullTransforms()
+    {
+        bool listModified = false;
+
+        bool freeOfNulls = false; // sets to false if a null is found+removed while parsing the list
+        while (!freeOfNulls)
+        {
+            bool nullRemoved = false;
+            // remove a null from the list
+            foreach (Transform transform in trackedTransforms)
+            {
+                if (transform == null)
+                {
+                    // remove tracked transform and its corresponding icon
+
+                    // destroy icon and remove from list
+                    Destroy(iconRects[trackedTransforms.IndexOf(transform)].gameObject);
+                    iconRects.RemoveAt(trackedTransforms.IndexOf(transform));
+
+                    trackedTransforms.Remove(transform);
+
+                    nullRemoved = true;
+                    break; // exit loop after modifying list to avoid errors
+                }
+            }
+
+            // no nulls found, list is clear of null objects and logic can proceed
+            if (!nullRemoved) { freeOfNulls = true; }
+            // if a null was found, it iterates over the list again
+            else { listModified = true; }
+        }
+
+        return listModified;
+    }
 }
