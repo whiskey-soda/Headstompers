@@ -8,12 +8,12 @@ public class Jump : MonoBehaviour
     WallJump wallJumpScript;
     GroundPound groundPoundScript;
     Grounded groundedScript;
+    HeadJump headJumpScript;
     Rigidbody2D rb2d;
     [SerializeField] public bool isJumping { get; private set; }
     [Header("Jump Edit")]
     [SerializeField] private float jumpHeight;
     [SerializeField] private float initialVelocity;
-    [SerializeField] private float initialHeadJumpVelocity;
     [SerializeField] private float maxHangTime;
     [SerializeField] private float earlyReleaseMultiplier;
     [SerializeField] private float gravityCap;
@@ -22,8 +22,8 @@ public class Jump : MonoBehaviour
     [SerializeField] public float coyoteTime;
 
     [Header("Jump Debug")]
-    private bool jumpHeld;
-    private bool jumpPressed;
+    public bool jumpHeld;
+    public bool jumpPressed;
     private float gravity;
     private float maxGravity;
     private float jumpVelocity;
@@ -32,11 +32,13 @@ public class Jump : MonoBehaviour
     private bool accelerationCalculated;
     private bool maxGravCalculated;
     private float currentHangTime;
-    private float jumpBufferTimer;
+    public float jumpBufferTimer;
     public  float coyoteTimer;
 
     [SerializeField]public bool startedHoldingWall;
     public bool startedGroundPounding;
+    public bool startedHeadJumping;
+    public bool headJumping;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -44,26 +46,21 @@ public class Jump : MonoBehaviour
         groundedScript = GetComponent<Grounded>();
         wallJumpScript = GetComponent<WallJump>();
         groundPoundScript = GetComponent<GroundPound>();
+        headJumpScript = GetComponent<HeadJump>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        //Logic for when the player is not holding onto the wall and not ground pounding
         if (!wallJumpScript.CheckHoldingWall() && !groundPoundScript.CheckGroundPounding())
         {
-            if (!isJumping && !groundedScript.onHead)
-            {
-                CheckJump();
-            }
-            else if (isJumping && groundedScript.onHead)
-            {
-                EndJump();
-                CheckJump();
-            }
+            CheckJump();
             startedHoldingWall = false;
             startedGroundPounding = false;
         }
-        else if(wallJumpScript.CheckHoldingWall() && !groundPoundScript.CheckGroundPounding())
+        //Logic for when the player is wall sliding
+        else if (wallJumpScript.CheckHoldingWall() && !groundPoundScript.CheckGroundPounding() && !headJumpScript.OnHead())
         {
             if (!startedHoldingWall)
             {
@@ -71,9 +68,10 @@ public class Jump : MonoBehaviour
                 startedHoldingWall = true;
             }
         }
-        else if(!wallJumpScript.CheckHoldingWall() && groundPoundScript.CheckGroundPounding())
+        //Logic for when the player is ground pounding
+        else if (!wallJumpScript.CheckHoldingWall() && groundPoundScript.CheckGroundPounding() && !headJumpScript.OnHead())
         {
-            if(!startedGroundPounding)
+            if (!startedGroundPounding)
             {
                 EndJump();
                 startedGroundPounding = true;
@@ -167,20 +165,8 @@ public class Jump : MonoBehaviour
         currentHangTime = 0f;
     }
 
-    private void InitiateHeadJump(float headVelo)
-    {
-        //Sets all the jump variables to get it ready for a jump
-        isJumping = true;
-        initialJumpStarted = true;
-        jumpVelocity = headVelo;
-        accelerationCalculated = false;
-        maxGravCalculated = false;
-        reachedPeak = false;
-        currentHangTime = 0f;
-    }
 
-
-    private void EndJump()
+    public void EndJump()
     {
         //Ends the jump and sets all the variables for the next jump
         isJumping = false;
@@ -190,6 +176,7 @@ public class Jump : MonoBehaviour
         reachedPeak = false;
         currentHangTime = 0f;
         jumpVelocity = 0f;
+        headJumping = false;
     }
 
     private bool CheckApplyUpwardJump()
@@ -279,7 +266,7 @@ public class Jump : MonoBehaviour
     }
 
 
-    private void EarlyRelease()
+    public void EarlyRelease()
     {
         jumpVelocity *= earlyReleaseMultiplier; // fall faster when released early
         reachedPeak = true;
@@ -319,6 +306,7 @@ public class Jump : MonoBehaviour
     {
         bool inputPressed = value.isPressed;
 
+
         if (!inputPressed && jumpHeld)
         {
             // Player just released the jump button
@@ -336,12 +324,13 @@ public class Jump : MonoBehaviour
 
 
         //Main jump input
-        if (inputPressed && !isJumping && groundedScript.isGrounded)
+        if (inputPressed)
         {
             jumpPressed = true;
-            Debug.Log("Jump pressed");
+            //Debug.Log("Jump pressed");
 
         }
+
 
         //Buffer for if the player inputs before the player actually lands smoother feel
         if (inputPressed)
@@ -352,32 +341,37 @@ public class Jump : MonoBehaviour
 
     public void CheckJump()
     {
+        bool canJump = groundedScript.isGrounded || headJumpScript.OnHead();
+
+
+        if(headJumpScript.OnHead() && headJumpScript.canHeadJump)
+        {
+            EndJump();
+            headJumpScript.canHeadJump = false;
+        }
+
         //The jump is activate if the player is currently pressing the button or pressed it early but within the buffer window
         // Coyote time is also taken into account to allow the player to jump even if they are already falling
-        if ((jumpBufferTimer > 0f || jumpPressed) && !isJumping && coyoteTimer > 0f && groundedScript.isGrounded)
+        if ((jumpBufferTimer > 0f || jumpPressed) && !isJumping && coyoteTimer > 0f && canJump)
         {
             jumpBufferTimer = 0f;
             jumpVelocity = 0;
-            InitiateJump();
 
+            if(groundedScript.isGrounded)
+            {
+                InitiateJump();
+                Debug.Log("Normal Jump");
+            }
+            else if(headJumpScript.OnHead())
+            {
+                ApplyExternalJump(headJumpScript.headJumpVelocity);
+                Debug.Log("Strong Head Jump");
+            }
         }
-        else if(!groundedScript.isGrounded && groundedScript.onHead)
+        else if(!jumpPressed && headJumpScript.OnHead())
         {
-            
-            if((jumpBufferTimer > 0f || jumpPressed))
-            {
-                Debug.Log("Jump Buffer Timer Time: " + jumpBufferTimer);
-                jumpBufferTimer = 0f;
-                jumpVelocity = 0;
-                InitiateHeadJump(initialHeadJumpVelocity);
-            }
-            else
-            {
-                Debug.Log("Jump On Head no Press");
-                jumpBufferTimer = 0f;
-                jumpVelocity = 0;
-                InitiateHeadJump(initialHeadJumpVelocity/1.5f);
-            }
+            ApplyExternalJump(headJumpScript.weakHeadJumpVelocity);
+            Debug.Log("Weak Head Jump");
         }
     }
 

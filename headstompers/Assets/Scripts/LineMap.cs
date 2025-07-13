@@ -53,7 +53,7 @@ public class LineMap : MonoBehaviour
 
             // calculates the position of the object on the map from 0 to 1, 0 being the left edge and 1 being the right edge
             float mapProgress = (playerTransform.position.x - leftMapEdge.position.x) / (rightMapEdge.position.x - leftMapEdge.position.x);
-            Debug.Log(mapProgress);
+            //Debug.Log(mapProgress);
 
             // use mapProgress float to set the position of the object's icon along the line
             iconRect.localPosition = new Vector3(Mathf.Lerp(lineImageRect.offsetMin.x, lineImageRect.offsetMax.x, mapProgress),

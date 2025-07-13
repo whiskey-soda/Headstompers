@@ -226,6 +226,7 @@ GameObject:
   - component: {fileID: 3112846748714581345}
   - component: {fileID: 8596458551909997131}
   - component: {fileID: 4460428756911823920}
+  - component: {fileID: -2046808559567433650}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -592,7 +593,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpHeight: 4
   initialVelocity: 20
-  initialHeadJumpVelocity: 25
   maxHangTime: 0
   earlyReleaseMultiplier: 0.3
   gravityCap: 1.75
@@ -602,6 +602,8 @@ MonoBehaviour:
   coyoteTimer: 0
   startedHoldingWall: 0
   startedGroundPounding: 0
+  startedHeadJumping: 0
+  headJumping: 0
 --- !u!114 &6415248168388920216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -733,6 +735,27 @@ MonoBehaviour:
   objectType: 1
   leftClone: {fileID: 0}
   rightClone: {fileID: 0}
+--- !u!114 &-2046808559567433650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1937573755201859420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16da0ee95385305498ef482ba9e187bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  feet: {fileID: 7468069712938415815}
+  detectionLength: 0.02
+  Player:
+    serializedVersion: 2
+    m_Bits: 128
+  onHead: 0
+  canHeadJump: 0
+  headJumpVelocity: 20
+  weakHeadJumpVelocity: 10
 --- !u!1 &1993774032167759838
 GameObject:
   m_ObjectHideFlags: 0
