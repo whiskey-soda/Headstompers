@@ -67,6 +67,7 @@ public class WallJump : MonoBehaviour
 
     private void Jump()
     {
+        Debug.Log("Wall Jumping");
         rb2d.linearVelocity = Vector2.zero;
         int direction = directionHeld == Side.Left ? 1 : -1;
         rb2d.linearVelocity = new Vector2(wallJumpForceX * direction,rb2d.linearVelocityY);

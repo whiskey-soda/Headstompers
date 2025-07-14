@@ -48,6 +48,15 @@ public class HeadJump : MonoBehaviour
         }
 
         //Debug.Log("On Head: " + onHead);
+
+        if (onHead)
+        {
+            jumpScript.coyoteTimer = jumpScript.coyoteTime; // reset on ground
+        }
+        else
+        {
+            jumpScript.coyoteTimer -= Time.deltaTime;
+        }
     }
 }
 

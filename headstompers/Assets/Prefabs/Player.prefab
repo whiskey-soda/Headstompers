@@ -470,6 +470,7 @@ MonoBehaviour:
   sprint_acceleration: 20
   deceleration: 10
   midairAccelMult: 0.5
+  xVelocity: 0
   slideSpeedMult: 2
   slideDeceleration: 15
   slideMinSeconds: 0.25
@@ -599,6 +600,9 @@ MonoBehaviour:
   gravityScale: 2.25
   jumpBufferTime: 0.1
   coyoteTime: 0.1
+  jumpHeld: 0
+  jumpPressed: 0
+  jumpBufferTimer: 0
   coyoteTimer: 0
   startedHoldingWall: 0
   startedGroundPounding: 0
@@ -754,8 +758,8 @@ MonoBehaviour:
     m_Bits: 128
   onHead: 0
   canHeadJump: 0
-  headJumpVelocity: 20
-  weakHeadJumpVelocity: 10
+  headJumpVelocity: 25
+  weakHeadJumpVelocity: 15
 --- !u!1 &1993774032167759838
 GameObject:
   m_ObjectHideFlags: 0

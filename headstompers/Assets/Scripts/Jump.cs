@@ -290,9 +290,9 @@ public class Jump : MonoBehaviour
     private void UpdateVelocity()
     {
         //changes the y linear velocity
-        Vector3 velocity = rb2d.linearVelocity;
-        velocity.y = jumpVelocity;
-        rb2d.linearVelocity = velocity;
+        //Vector3 velocity = rb2d.linearVelocity;
+        //velocity.y = jumpVelocity;
+        rb2d.linearVelocityY = jumpVelocity;
     }
 
     public void StopJump()

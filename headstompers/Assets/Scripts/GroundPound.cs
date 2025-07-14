@@ -41,6 +41,7 @@ public class GroundPound : MonoBehaviour
 
     private void ApplyGroundPound()
     {
+        Debug.Log("Ground Pounding");
         rb2d.linearVelocityY = groundPoundSpeed;
         rb2d.linearVelocityX = 0;
     }
@@ -53,6 +54,7 @@ public class GroundPound : MonoBehaviour
     {
         if (value.Get<float>() < 0 && !groundedScript.isGrounded)
         {
+            Debug.Log("Ground Pounding");
             groundPounding = true;
             currentChargeTimer = chargeTime;
             rb2d.linearVelocity = Vector2.zero;
