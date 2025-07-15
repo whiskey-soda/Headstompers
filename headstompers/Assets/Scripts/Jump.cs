@@ -177,6 +177,8 @@ public class Jump : MonoBehaviour
         currentHangTime = 0f;
         jumpVelocity = 0f;
         headJumping = false;
+
+        Debug.Log("Player X Velocity: "+rb2d.linearVelocityX);
     }
 
     private bool CheckApplyUpwardJump()

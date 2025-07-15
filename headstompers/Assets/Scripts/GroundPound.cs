@@ -28,7 +28,8 @@ public class GroundPound : MonoBehaviour
 
         if(groundPounding)
         {
-            if(currentChargeTimer > 0f)
+            Debug.Log("Ground Pounding");
+            if (currentChargeTimer > 0f)
             {
                 currentChargeTimer -= Time.deltaTime;
             }
@@ -41,7 +42,7 @@ public class GroundPound : MonoBehaviour
 
     private void ApplyGroundPound()
     {
-        Debug.Log("Ground Pounding");
+        
         rb2d.linearVelocityY = groundPoundSpeed;
         rb2d.linearVelocityX = 0;
     }
